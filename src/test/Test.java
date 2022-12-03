@@ -1,8 +1,7 @@
 package test;
 
 import dao.DBConn;
-import service.Login;
-import service.UserMainMenu;
+import swing.user_page.UserMainMenu;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -21,7 +20,8 @@ public class Test {
         // get connection
         conn = DBConn.getConn(username, password);
 
-        Login status = new Login(conn);
-        status.run();
+//        Login status = new Login(conn);
+//        status.run();
+        UserMainMenu menu = new UserMainMenu(conn, "123", "NBA info system");
     }
 }

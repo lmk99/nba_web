@@ -1,14 +1,12 @@
 package service.user_modules;
 
-import dao.DBConn;
 import dao.DBQuery;
 import dao.DBUpdate;
-import service.UserMainMenu;
+import swing.user_page.UserMainMenu;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 public class FollowModule {
@@ -20,82 +18,95 @@ public class FollowModule {
         this.username = username;
     }
 
-    // follow teams module
-    public void followTeams() {
+    public List<List<String>> getAllTeams() {
         try {
             String sql;
-            Statement stmt;
             ResultSet rs;
 
-            // list all the team name
-            sql = "SELECT full_name, abbreviation, nickname FROM team";
-            rs = DBQuery.getResultSet(conn, sql);
+            // list all the team name to list all the teams
+            sql = "CALL getBriefTeam()";
+            CallableStatement cstmt = conn.prepareCall(sql);
+            rs = cstmt.executeQuery();
 
-            System.out.printf("%-25s %-20s %-20s\n", "team name", "abbreviation", "nickname");
+            List<List<String>> res = new LinkedList<>();
             while (rs.next()) {
-                System.out.printf("%-25s %-20s %-20s\n", rs.getString("full_name"),
-                        rs.getString("abbreviation"), rs.getString("nickname"));
-            }
-            System.out.println();
-
-            int command;
-            while (true) {
-                // search for the team username has followed
-                //get team id from user_follow table
-                sql = "SELECT abbreviation FROM user_follow JOIN team ON " +
-                        "user_follow.team_id=team.id WHERE username=" + username;
-                rs = DBQuery.getResultSet(conn, sql);
-                if (rs.isBeforeFirst()) {
-                    // find the corresponding
-                    System.out.println("You have already followed: ");
-                    while (rs.next()) {
-                        System.out.print(rs.getString("abbreviation") + "   ");
-                    }
-                    System.out.println();
-                }
-                System.out.println();
-
-                // prompt for user to input an abbreviation
-                Scanner sc = new Scanner(System.in);
-                System.out.print("Input your team: ");
-                String abb = sc.nextLine();
-
-                // search for pointed team and get its team_id
-                sql = "SELECT id FROM team WHERE abbreviation=" + "'" + abb + "'";
-                rs = DBQuery.getResultSet(conn, sql);
-                if (!rs.isBeforeFirst())
-                    System.out.println("Team Not Found, follow fail");
-                else {
-                    rs.next();
-                    int teamId = rs.getInt("id");
-                    // add the username and team id to user_follow table
-                    sql = "INSERT INTO user_follow VALUES(" + username + ", " + teamId + ")";
-                    int updatedRow = DBUpdate.getResultSet(conn, sql);
-                    if (updatedRow == 1)
-                        System.out.println("You have successfully follow " + abb);
-                    else
-                        System.out.println("Follow fail, please try again");
-                }
-
-                // query next move
-                System.out.println("1-continue follow, 2-back to main menu, other-exit");
-                System.out.print("Your input: ");
-                command = sc.nextInt();
-
-                if (command == 1)
-                    continue;
-                else if (command == 2)
-                    break;
-                else
-                    break;
+                List<String> row = new LinkedList<>();
+                row.add(rs.getString("full_name"));
+                row.add(rs.getString("abbreviation"));
+                row.add(rs.getString("nickname"));
+                res.add(row);
             }
 
-            if (command == 2) {
-                System.out.println();
-                new UserMainMenu(conn, username).service();
+            return res;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public List<String> getUserCurrentTeams() {
+        try {
+            String sql;
+            ResultSet rs;
+
+            // search for the team username has followed
+            //get team id from user_follow table
+            sql = "SELECT abbreviation FROM user_follow JOIN team ON " +
+                    "user_follow.team_id=team.id WHERE username=" + "'" + username + "'";
+            rs = DBQuery.getResultSet(conn, sql);
+            if (rs.isBeforeFirst()) {
+                // find the corresponding
+                List<String> res = new LinkedList<>();
+                while (rs.next()) {
+                    res.add(rs.getString("abbreviation"));
+                }
+
+                return res;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        return null;
+    }
+
+    public int updateUserFollow(String abb, int operation) {
+        try {
+            String sql;
+            ResultSet rs;
+
+            // search for pointed team and get its team_id
+            sql = "SELECT id FROM team WHERE abbreviation=" + "'" + abb + "'";
+            rs = DBQuery.getResultSet(conn, sql);
+            if (!rs.isBeforeFirst()) {
+                System.out.println("Team Not Found, follow fail");
+                return 1;   // 1 indicates update fails
+            } else {
+                rs.next();
+                int teamId = rs.getInt("id");
+                // follow a team
+                if (operation == 0) {
+                    // add the username and team id to user_follow table
+                    sql = "INSERT INTO user_follow VALUES(" + "'" + username + "'" + ", " + "'" + teamId + "'" + ")";
+                    int updatedRow = DBUpdate.getResultSet(conn, sql);
+                    if (updatedRow == 1)
+                        return 0;
+                    else
+                        return 1;
+                } else if (operation == 1) {    // unfollow a team
+                    sql = "DELETE FROM user_follow WHERE username=" + "'" + username + "'" + "AND team_id=" + teamId;
+                    int updatedRow = DBUpdate.getResultSet(conn, sql);
+                    if (updatedRow == 1)
+                        return 0;
+                    else
+                        return 1;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return 0;   // 0 indicate update completes
     }
 }
