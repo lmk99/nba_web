@@ -99,10 +99,6 @@ public class UserFollowPage extends JFrame {
         setVisible(true);
     }
 
-    public static void main(String[] args) {
-        new UserFollowPage(DBConn.getConn("root", "12345678"), "123", "NBA info system");
-    }
-
     private void createUIComponents() {
         String[] header = {"full name", "abbreviation", "nickname"};
         List<List<String>>listData = new FollowModule(conn, username).getAllTeams();

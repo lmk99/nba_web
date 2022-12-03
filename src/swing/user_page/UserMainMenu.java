@@ -75,7 +75,7 @@ public class UserMainMenu extends JFrame {
         btn3.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                new UserSearchPage(conn, username, title);
             }
         });
         contentPane.add(btn3);
