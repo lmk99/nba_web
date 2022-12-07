@@ -10,7 +10,7 @@ import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.util.List;
 
-public class UserNewsPage extends JFrame {
+public class UserNewsPage extends AbstractPage {
 
     private String username;
     private Connection conn;
@@ -31,35 +31,31 @@ public class UserNewsPage extends JFrame {
 
     int page;
 
-    public UserNewsPage(Connection conn, String username, String title, int page) {
-        this.conn = conn;
-        this.username = username;
+    public UserNewsPage(Connection conn, String username, int page) {
+        super(conn, username);
         this.page = page;
 
-        setTitle(title);
-        this.setContentPane(mainPanel);
-        setBounds(100, 50, INDEX_WIDTH, INDEX_HEIGHT);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         btn1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (page == 0)
                     JOptionPane.showMessageDialog(null, "No previous page!");
                 else
-                    new UserNewsPage(conn, username, title, page - 1);
+                    new UserNewsPage(conn, username, page - 1);
             }
         });
         btn2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new UserNewsPage(conn, username, title, page + 1);
+                new UserNewsPage(conn, username, page + 1);
             }
         });
         btn3.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() == btn3)
-                     new UserMainMenu(conn, username, title);
+                     new UserMainMenu(conn, username);
             }
         });
 
@@ -70,7 +66,7 @@ public class UserNewsPage extends JFrame {
 
     private void createUIComponents() {
         String[] header = {"topic", "title", "summary", "author", "publish date", "link"};
-        List<List<String>>listData = new NewsModule(conn, username).getNews(this.page);
+        List<List<String>>listData = new NewsModule(super.conn, super.username).getNews(this.page);
         int m = listData.size(), n = listData.get(0).size();
         Object[][] data = new Object[m][n];
         for (int i = 0; i < m; i++) {
@@ -81,9 +77,5 @@ public class UserNewsPage extends JFrame {
 
         DefaultTableModel defaultModel = new DefaultTableModel(data, header);
         table1 = new JTable(defaultModel);
-    }
-
-    public static void main(String[] args) {
-        new UserNewsPage(DBConn.getConn("root", "12345678"), "123", "NBA info system", 0);
     }
 }

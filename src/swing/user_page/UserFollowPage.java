@@ -1,6 +1,5 @@
 package swing.user_page;
 
-import dao.DBConn;
 import service.user_modules.FollowModule;
 
 import javax.swing.*;
@@ -10,7 +9,7 @@ import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.util.List;
 
-public class UserFollowPage extends JFrame {
+public class UserFollowPage extends AbstractPage {
 
     private JPanel teamsPanel;
     private JPanel headPanel;
@@ -32,14 +31,8 @@ public class UserFollowPage extends JFrame {
     private int INDEX_WIDTH = 700;
     private int INDEX_HEIGHT = 700;
 
-    public UserFollowPage(Connection conn, String username, String title) {
-        this.conn = conn;
-        this.username = username;
-
-        setTitle(title);
-        this.setContentPane(mainPanel);
-        setBounds(100, 50, INDEX_WIDTH, INDEX_HEIGHT);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    public UserFollowPage(Connection conn, String username) {
+        super(conn, username);
 
         List<String> followedTeams = new FollowModule(conn, username).getUserCurrentTeams();
         StringBuffer sb = new StringBuffer("You have followed: ");
@@ -62,7 +55,7 @@ public class UserFollowPage extends JFrame {
                         else {
                             JOptionPane.showMessageDialog(null, "You have add " + textValue + " to you favourite teams");
                             dispose();
-                            new UserFollowPage(conn, username, title);
+                            new UserFollowPage(conn, username);
                         }
                     }
                 }
@@ -72,7 +65,7 @@ public class UserFollowPage extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() == btn2)
-                    new UserMainMenu(conn, username, title);
+                    new UserMainMenu(conn, username);
             }
         });
         btn3.addActionListener(new ActionListener() {
@@ -89,7 +82,7 @@ public class UserFollowPage extends JFrame {
                         else {
                             JOptionPane.showMessageDialog(null, "You have unfollowed " + textValue + " to you favourite teams");
                             dispose();  // it may take some time to process update and refresh the window
-                            new UserFollowPage(conn, username, title);
+                            new UserFollowPage(conn, username);
                         }
                     }
                 }
@@ -101,7 +94,7 @@ public class UserFollowPage extends JFrame {
 
     private void createUIComponents() {
         String[] header = {"full name", "abbreviation", "nickname"};
-        List<List<String>>listData = new FollowModule(conn, username).getAllTeams();
+        List<List<String>>listData = new FollowModule(super.conn, super.username).getAllTeams();
         int m = listData.size(), n = listData.get(0).size();
         Object[][] data = new Object[m][n];
         for (int i = 0; i < m; i++) {

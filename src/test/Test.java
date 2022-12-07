@@ -22,6 +22,6 @@ public class Test {
 
 //        Login status = new Login(conn);
 //        status.run();
-        UserMainMenu menu = new UserMainMenu(conn, "123", "NBA info system");
+        UserMainMenu menu = new UserMainMenu(conn, "123");
     }
 }

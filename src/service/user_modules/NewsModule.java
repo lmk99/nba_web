@@ -97,7 +97,7 @@ public class NewsModule {
 
             if (command == 3) {
                 System.out.println();
-                new UserMainMenu(conn, username, "NBA info system");
+                new UserMainMenu(conn, username);
             }
         } catch (SQLException e) {
             e.printStackTrace();
