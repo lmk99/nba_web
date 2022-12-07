@@ -25,14 +25,10 @@ public class UserFollowPage extends AbstractPage {
     private JLabel userHintLabel;
     private JButton btn3;
 
-    private Connection conn;
-    private String username;
-
-    private int INDEX_WIDTH = 700;
-    private int INDEX_HEIGHT = 700;
-
     public UserFollowPage(Connection conn, String username) {
         super(conn, username);
+
+        setContentPane(mainPanel);
 
         List<String> followedTeams = new FollowModule(conn, username).getUserCurrentTeams();
         StringBuffer sb = new StringBuffer("You have followed: ");

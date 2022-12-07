@@ -11,12 +11,6 @@ import java.sql.Connection;
 import java.util.List;
 
 public class UserNewsPage extends AbstractPage {
-
-    private String username;
-    private Connection conn;
-
-    private int INDEX_WIDTH = 700;
-    private int INDEX_HEIGHT = 700;
     private JButton btn1;
     private JButton btn2;
     private JButton btn3;
@@ -35,6 +29,7 @@ public class UserNewsPage extends AbstractPage {
         super(conn, username);
         this.page = page;
 
+        setContentPane(mainPanel);
 
         btn1.addActionListener(new ActionListener() {
             @Override
