@@ -1,6 +1,7 @@
 package test;
 
 import dao.DBConn;
+import swing.home_page.LoginPage;
 import swing.user_page.UserMainMenu;
 
 import java.sql.Connection;
@@ -15,13 +16,14 @@ public class Test {
         int update_row = 0;
         String sql = "";
         String username = "root";
-        String password = "12345678";
+        String password = "Majiayi62717722!";
 
         // get connection
         conn = DBConn.getConn(username, password);
 
 //        Login status = new Login(conn);
 //        status.run();
-        UserMainMenu menu = new UserMainMenu(conn, "123");
+//        UserMainMenu menu = new UserMainMenu(conn, "123");
+        LoginPage home = new LoginPage(conn, "NBA info system");
     }
 }

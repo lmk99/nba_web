@@ -103,4 +103,100 @@ public class NewsModule {
             e.printStackTrace();
         }
     }
+
+    public List<List<String>> getMyNews(String username) {
+        try {
+            CallableStatement cstmt;
+            String sql;
+            ResultSet rs;
+            sql = "CALL myOwnNews(?)";
+            cstmt = conn.prepareCall(sql);
+            cstmt.clearParameters();
+            cstmt.setString(1, username);
+            rs = cstmt.executeQuery();
+
+            List<List<String>> res = new LinkedList<>();
+            while (rs.next()) {
+                List<String> row = new LinkedList<>();
+                row.add(rs.getString("id"));
+                row.add(rs.getString("topic"));
+                row.add(rs.getString("title"));
+                row.add(rs.getString("summary"));
+                row.add(rs.getString("publish_date"));
+                res.add(row);
+            }
+
+            return res;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public void writeNews(String topic, String title, String summary, String author, String publish_date) {
+        try {
+            CallableStatement cstmt;
+            String sql;
+            sql = "CALL writeMyNews(?, ?, ?, ?, ?)";
+            cstmt = conn.prepareCall(sql);
+            cstmt.clearParameters();
+            cstmt.setString(1, topic);
+            cstmt.setString(2, title);
+            cstmt.setString(3, summary);
+            cstmt.setString(4, author);
+            cstmt.setString(5, publish_date);
+            cstmt.executeQuery();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void editTitle(String title, int id) {
+        try {
+            CallableStatement cstmt;
+            String sql;
+            sql = "CALL updateMyNewsTitle(?, ?)";
+            cstmt = conn.prepareCall(sql);
+            cstmt.clearParameters();
+            cstmt.setString(1, title);
+            cstmt.setInt(2, id);
+            cstmt.executeQuery();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void editSummary(String summary, int id) {
+        try {
+            CallableStatement cstmt;
+            String sql;
+            sql = "CALL updateMyNewsSummary(?, ?)";
+            cstmt = conn.prepareCall(sql);
+            cstmt.clearParameters();
+            cstmt.setString(1, summary);
+            cstmt.setInt(2, id);
+            cstmt.executeQuery();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteNews(int id) {
+        try {
+            CallableStatement cstmt;
+            String sql;
+            sql = "CALL deleteMyNews(?)";
+            cstmt = conn.prepareCall(sql);
+            cstmt.clearParameters();
+            cstmt.setInt(1, id);
+            cstmt.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

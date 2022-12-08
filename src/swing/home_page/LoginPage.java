@@ -1,6 +1,7 @@
 package swing.home_page;
 
 import swing.journalist_page.JournalistMainPage;
+import swing.user_page.UserMainMenu;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -66,9 +67,10 @@ public class LoginPage extends JFrame {
                                 if(password.equals(rs.getString(2))){
                                     JOptionPane.showMessageDialog(null, "Login successfully!");
 
-                                    // 根据type， 跳转到不同menu
                                     if(acc.equals("Journalist")){
                                         new JournalistMainPage(conn, userID, title);
+                                    }else{
+                                        new UserMainMenu(conn, userID);
                                     }
                                 }else{
                                     JOptionPane.showMessageDialog(null, "Wrong password. Please try again!");
