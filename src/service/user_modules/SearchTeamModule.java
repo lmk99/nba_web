@@ -8,30 +8,34 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
-public class SearchTeamModule {
-    Connection conn;
-    String username;
+public class SearchTeamModule extends SearchModule {
 
-    public SearchTeamModule(Connection conn, String username) {
-        this.conn = conn;
-        this.username = username;
+    public SearchTeamModule(Connection conn) {
+        super(conn);
     }
 
-    public List<List<String>> getAllTeams() {
+    // retrieve all the teams
+    public List<List<String>> getAllTeams(List<Integer> index) {
         try {
             String sql;
             ResultSet rs;
 
             // list all teams' brief information
             sql = "CALL getBriefTeam()";
-            CallableStatement cstmt = conn.prepareCall(sql);
+            CallableStatement cstmt = super.conn.prepareCall(sql);
             rs = cstmt.executeQuery();
+
+            // if rs is empty, return null
+            if (!rs.isBeforeFirst())
+                return null;
 
             List<List<String>> res = new LinkedList<>();
             while (rs.next()) {
                 List<String> row = new LinkedList<>();
                 row.add(rs.getString("full_name"));
                 row.add(rs.getString("abbreviation"));
+                row.add(rs.getString("nickname"));
+                index.add(rs.getInt("id"));
                 res.add(row);
             }
 
@@ -43,16 +47,17 @@ public class SearchTeamModule {
         return null;
     }
 
-    public int getTeamId(String abb) {
+    // get team id if exists
+    public int getTeamIdByAbb(String abb) {
         try {
             String sql;
             ResultSet rs;
 
             sql = "SELECT id FROM team WHERE abbreviation=" + "'" + abb + "'";
-            rs = DBQuery.getResultSet(conn, sql);
+            rs = DBQuery.getResultSet(super.conn, sql);
 
             if (!rs.isBeforeFirst())
-                return -1;
+                return 0;
             else {
                 rs.next();
                 return rs.getInt("id");
@@ -61,16 +66,34 @@ public class SearchTeamModule {
             e.printStackTrace();
         }
 
+        return 0;
+    }
+
+    public int getTeamIdByPlayer(int playerId) {
+        try {
+            String sql = "SELECT team_id FROM player WHERE id=" + playerId;
+            ResultSet rs;
+
+            rs = conn.createStatement().executeQuery(sql);
+            if (!rs.isBeforeFirst())
+                return -1;
+
+            rs.next();
+            return rs.getInt("team_id");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         return -1;
     }
 
-    public List<List<String>> searchTeamBasic(int teamId) {
+    public List<List<String>> getTeamDetail(int teamId) {
         try {
             String sql;
             ResultSet rs;
 
             sql = "CALL getTeamAndArena(?)";
-            CallableStatement cstmt = conn.prepareCall(sql);
+            CallableStatement cstmt = super.conn.prepareCall(sql);
             cstmt.clearParameters();
             cstmt.setInt(1, teamId);
             rs = cstmt.executeQuery();
@@ -92,29 +115,6 @@ public class SearchTeamModule {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
-    }
-
-    public List<List<String>> searchTeamPlayer(int teamId) {
-        try {
-            String sql;
-            ResultSet rs;
-            CallableStatement cstmt;
-
-            // search for players
-            sql = "CALL searchPlayersByTeam(?)";
-            cstmt = conn.prepareCall(sql);
-            cstmt.clearParameters();
-            cstmt.setInt(1, teamId);
-            rs = cstmt.executeQuery();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    public List<List<String>> searchTeamStaff(int teamId) {
         return null;
     }
 }

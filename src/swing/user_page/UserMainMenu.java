@@ -10,26 +10,14 @@ import java.awt.event.ActionListener;
 import java.sql.Connection;
 
 // command interface for user main menu
-public class UserMainMenu extends JFrame {
+public class UserMainMenu extends AbstractPage {
 
     private JPanel contentPane;
     private JButton btn1, btn2, btn3;
     private JLabel jl1, jl2;
 
-    private int INDEX_WIDTH = 700;
-    private int INDEX_HEIGHT = 700;
-
-    private String username;
-    private Connection conn;
-
-    public UserMainMenu(Connection conn, String username, String title) {
-        this.conn = conn;
-        this.username = username;
-
-        setTitle(title);
-        setBounds(100, 50, INDEX_WIDTH, INDEX_HEIGHT);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(false);
+    public UserMainMenu(Connection conn, String username) {
+        super(conn, username);
 
         contentPane = new JPanel();
         contentPane.setBackground(Color.WHITE);
@@ -54,8 +42,8 @@ public class UserMainMenu extends JFrame {
         btn1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (e.getSource() == btn1)
-                    new UserNewsPage(conn, username, title, 0);
+                dispose();
+                new UserNewsPage(conn, username, 0);
             }
         });
         contentPane.add(btn1);
@@ -65,7 +53,8 @@ public class UserMainMenu extends JFrame {
         btn2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new UserFollowPage(conn, username, title);
+                dispose();
+                new UserFollowPage(conn, username);
             }
         });
         contentPane.add(btn2);
@@ -75,7 +64,8 @@ public class UserMainMenu extends JFrame {
         btn3.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new UserSearchPage(conn, username, title);
+                dispose();
+                new SearchTeamsPage(conn, username);
             }
         });
         contentPane.add(btn3);
@@ -84,6 +74,6 @@ public class UserMainMenu extends JFrame {
     }
 
     public static void main(String[] args) {
-        new UserMainMenu(DBConn.getConn("root", "12345678"), "123", "NBA info system");
+        new UserMainMenu(DBConn.getConn("root", "12345678"), "123");
     }
 }
